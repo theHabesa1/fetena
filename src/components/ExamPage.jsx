@@ -1,213 +1,166 @@
-import { useState, useEffect, useRef } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Box, Button, Paper, Typography } from "@material-ui/core";
-import { useToasts } from 'react-toast-notifications';
+import React, { useEffect, useState } from "react";
+import { Box, Button, Grid, Paper, Typography } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    margin: theme.spacing(4),
+const questions = [
+  {
+    id: 1,
+    question: "What is the capital of France?",
+    options: ["New York", "Paris", "London", "Berlin"],
+    answer: "Paris",
   },
-  paper: {
-    padding: theme.spacing(4),
-    width: "80%",
+  {
+    id: 2,
+    question: "What is the largest continent?",
+    options: ["Europe", "Africa", "Asia", "North America"],
+    answer: "Asia",
   },
-  question: {
-    marginBottom: theme.spacing(2),
+  {
+    id: 3,
+    question: "What is the currency of Japan?",
+    options: ["Yuan", "Dollar", "Euro", "Yen"],
+    answer: "Yen",
   },
-  answer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    margin: theme.spacing(2, 0),
-  },
-  radio: {
-    marginRight: theme.spacing(2),
-  },
-  submitButton: {
-    marginTop: theme.spacing(4),
-  },
-  timer :{
-    position: "fixed",
-    top: theme.spacing(2),
-    right: theme.spacing(2),
-    backgroundColor: "#fff",
-    padding: theme.spacing(1),
-    borderRadius: theme.spacing(1),
-    boxShadow: theme.shadows[1],
-    transition: "background-color 0.5s ease-in-out",
-    "&.red": {
-      backgroundColor: "#f00",
-    },
+];
 
+const theme = createTheme({
+  typography: {
+    fontFamily: "Poppins, sans-serif",
   },
-}));
+});
 
 const ExamPage = () => {
-  const classes = useStyles();
-  const [timeLeft, setTimeLeft] = useState(10); 
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      text: "What is the capital of France?",
-      options: ["Paris", "London", "New York", "Sydney"],
-      answer: "Paris",
-      selected: "",
-    },
-    {
-      id: 2,
-      text: "What is the largest ocean in the world?",
-      options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-      answer: "Pacific Ocean",
-      selected: "",
-    },
-    // Add more questions as needed
-  ]);
-
-  const [, setIsActive] = useState(true);
-  const [strikeCount, setStrikeCount] = useState(0);
-  const [totalLeaveCount, setTotalLeaveCount] = useState(0);
-  const [disableSubmit, setDisableSubmit] = useState(false);
-  const { addToast } = useToasts();
-
-  const showWarningToast = (message) => {
-    addToast(message, {
-      appearance: "warning",
-      autoDismiss: true,
-    });
-  };
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [time, setTime] = useState(180);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setIsActive(false);
-        setTotalLeaveCount(prevCount => prevCount + 1);
-        if (strikeCount >= 2) {
-          showWarningToast(`You left the tab ${totalLeaveCount} times. You have no more strikes left.`);
-          setDisableSubmit(true);
-        } else {
-          setStrikeCount(prevCount => prevCount + 1);
-          showWarningToast(`You left the tab ${totalLeaveCount} times. You have ${2 - strikeCount} strikes left.`);
-        }
-      } else {
-        setIsActive(true);
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [strikeCount, totalLeaveCount]);
-
-  //Mouse tracking functionality
-
-  
-  useEffect(() => {
-    const handleMouseLeave = (event) => {
-      if (event.clientY <= 0 || event.clientY >= window.innerHeight || event.clientX <= 0 || event.clientX >= window.innerWidth) {
-        showWarningToast("Mouse left the screen!");
-      }
-    };
-
-    document.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      document.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
-  
-  const [isExamFinished, setIsExamFinished] = useState(false);
-
-
-  // useEffect hook to start the timer
-  const intervalRef = useRef(null); // define intervalRef using useRef
-
-  // useEffect hook to start the timer
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prevTimer) => prevTimer - 1);
-    }, 1000);
-
-    return () => clearInterval(intervalRef.current);
-  }, []);
-  
-  useEffect(() => {
-    if (timeLeft === 0) {
-      setIsExamFinished(true);
-      clearInterval(intervalRef.current); // clear the interval using intervalRef.current
+    if (time === 0) {
+      alert("Time's up!");
+    } else {
+      setTimeout(() => setTime(time - 1), 1000);
     }
-  }, [timeLeft]);
-  
+  }, [time]);
 
-  // function to handle option selection
-  const handleOptionSelect = (id, value) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) =>
-        question.id === id ? { ...question, selected: value } : question
-      )
-    );
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+
+  const handleOptionClick = (optionIndex) => {
+    setSelectedOption(optionIndex);
   };
 
-  // function to handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Logic to check answers and calculate score
-    // ...
-    // Redirect to score page or show score on this page
+  const handleNextClick = () => {
+    setSelectedOption(null);
+    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
   };
 
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
+  const handlePrevClick = () => {
+    setSelectedOption(null);
+    setCurrentQuestionIndex((prevIndex) => prevIndex - 1);
   };
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <Box className={classes.root}>
-      <Typography variant="h4">Exam Title {isExamFinished && "- Time Up"}</Typography>
-      <Paper elevation={3} className={classes.paper}>
-        <Box className = {classes.timer}>
-        <Typography variant="h6" color="textSecondary" className={`${classes.timer} ${timeLeft === 0 ? "red" : ""}`}>
-              Time Left: {formatTime(timeLeft)}
-            </Typography>
-        </Box>
-        <form onSubmit={handleSubmit}>
-          {questions.map((question) => (
-            <Box key={question.id} className={classes.question}>
-              <Typography variant="h6">{question.text}</Typography>
-              {question.options.map((option, index) => (
-                <Box key={index} className={classes.answer}>
-                  <input
-                    type="radio"
-                    name={`question-${question.id}`}
-                    value={option}
-                    checked={question.selected === option}
-                    className = {classes.radio}
-                    onChange={(e) => handleOptionSelect(question.id, e.target.value)}
-                  />
-                  <Typography>{option}</Typography>
+    <>
+      <ThemeProvider theme={theme}>
+      <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, height: "100%" }}>
+                <Typography variant="h5" gutterBottom>
+                  Time Left: {minutes < 10 ? `0${minutes}` : minutes}:
+                  {seconds < 10 ? `0${seconds}` : seconds}
+                </Typography>
+              </Paper>
+            </Grid>
+        <Box
+          p={2}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Grid container spacing={2} sx={{ width: "80%" }}>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, height: "100%" }}>
+                <Typography variant="h5" gutterBottom>
+                  Question {currentQuestion.id}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  {currentQuestion.question}
+                </Typography>
+                
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, height: "100%" }}>
+                <Typography variant="body1" gutterBottom>
+                  Which of the following options is the correct answer?
+                </Typography>
+                {currentQuestion.options.map((option, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: 1,
+                      p: 1,
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      border: "1px solid black",
+                      bgcolor:
+                        selectedOption === index
+                          ? "primary.main"
+                          : "background.paper",
+                      "&:hover": {
+                        bgcolor: "grey.200",
+                      },
+                    }}
+                    onClick={() => handleOptionClick(index)}
+                  >
+                    <Box
+                      sx={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        border: "1px solid black",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: 1,
+                      }}
+                    >
+                      {selectedOption === index && "✓"}
+                    </Box>
+                    <Typography variant="body1">{option}</Typography>
+                  </Box>
+                ))}
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  
+                  <Button
+                    variant="outlined"
+                    sx={{ mr: 2 }}
+                    disabled={currentQuestionIndex === 0}
+                    onClick={handlePrevClick}
+                  >
+                    Prev
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handleNextClick}
+                    disabled={selectedOption === null}
+                  >
+                    {currentQuestionIndex === questions.length - 1
+                      ? "Submit"
+                      : "Next"}
+                  </Button>
                 </Box>
-              ))}
-            </Box>
-          ))}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={isExamFinished || disableSubmit} 
-            className={classes.submitButton}
-          >
-            Submit Exam
-          </Button>
-        </form>
-      </Paper>
-    </Box>
+              </Paper>
+            </Grid>
+            
+          </Grid>
+        </Box>
+      </ThemeProvider>
+    </>
   );
 };
 
