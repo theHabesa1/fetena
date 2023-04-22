@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Grid, LinearProgress, Paper, Typography } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const questions = [
@@ -17,6 +17,18 @@ const questions = [
   },
   {
     id: 3,
+    question: "What is the currency of Japan?",
+    options: ["Yuan", "Dollar", "Euro", "Yen"],
+    answer: "Yen",
+  },
+  {
+    id: 4,
+    question: "What is the currency of Japan?",
+    options: ["Yuan", "Dollar", "Euro", "Yen"],
+    answer: "Yen",
+  },
+  {
+    id: 5,
     question: "What is the currency of Japan?",
     options: ["Yuan", "Dollar", "Euro", "Yen"],
     answer: "Yen",
@@ -65,11 +77,17 @@ const ExamPage = () => {
     <>
       <ThemeProvider theme={theme}>
       <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: "100%" }}>
+              <Paper sx={{ p: 2, height: "100%", border:"black" }}>
                 <Typography variant="h5" gutterBottom>
                   Time Left: {minutes < 10 ? `0${minutes}` : minutes}:
                   {seconds < 10 ? `0${seconds}` : seconds}
                 </Typography>
+                <Box width="80%" my={2}>
+            <LinearProgress
+              variant="determinate"
+              value={((currentQuestionIndex + 1) / questions.length) * 100}
+            />
+          </Box>
               </Paper>
             </Grid>
         <Box
