@@ -122,9 +122,9 @@ const ExamPage = () => {
                       alignItems: "center",
                       mb: 1,
                       p: 1,
-                      borderRadius: "10px",
+                  
                       cursor: "pointer",
-                      border: "1px solid black",
+                     
                       bgcolor:
                         selectedOption === index
                           ? "primary.main"
@@ -132,23 +132,25 @@ const ExamPage = () => {
                       "&:hover": {
                         bgcolor: "grey.200",
                       },
+                      
+                      flexDirection: "column",
+                      
+                      justifyContent: "space-between",
+                      padding: "20px 32px",
+                      margin: "8px",
+                      flex: "0 0 auto",
+                      textAlign: "center",
+                      boxSizing: "border-box",
+                      border: "1px solid #ddd",
+                      
+                      borderRadius: "var(--border-radius)",
+                     
+                      lineHeight: "1.3",
+                      transition: "transform 0.1s, border-color 0.5s, background-color 0.2s"
                     }}
                     onClick={() => handleOptionClick(index)}
                   >
-                    <Box
-                      sx={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "50%",
-                        border: "1px solid black",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginRight: 1,
-                      }}
-                    >
-                      {selectedOption === index && "✓"}
-                    </Box>
+                    
                     <Typography variant="body1">{option}</Typography>
                   </Box>
                 ))}

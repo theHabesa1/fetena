@@ -34,9 +34,39 @@ const exams = [
 const ExamsPage = () => {
   const navigate = useNavigate();
   const handleTakeExamClick = (examName) => {
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) { /* Safari */
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { /* IE11 */
+      element.msRequestFullscreen();
+    }
+  
+    const examTimer = 60; // Replace with actual exam timer value
+  
+    const exitHandler = () => {
+      if (!document.fullscreenElement) {
+        if (examTimer > 0) {
+          alert("Cannot exit full-screen mode during exam");
+          element.requestFullscreen();
+        } else {
+          document.removeEventListener("fullscreenchange", exitHandler);
+          document.removeEventListener("webkitfullscreenchange", exitHandler);
+          document.removeEventListener("msfullscreenchange", exitHandler);
+        }
+      }
+    };
+    document.addEventListener("fullscreenchange", exitHandler);
+    document.addEventListener("webkitfullscreenchange", exitHandler);
+    document.addEventListener("msfullscreenchange", exitHandler);
+  
     navigate("/exam");
     console.log(`Take ${examName} clicked`);
   };
+  
+  
+  
 
   const classes = useStyles();
 
